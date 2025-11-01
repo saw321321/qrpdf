@@ -21,13 +21,14 @@ generator.add_type(
     margin_down=0.3,
     margin_left=0.1,
     margin_right=0.1,
-    text_size=0.1
+    text_size=0.13
 )
 
 generator.add_type(
     "mode",
     {"insert": "mode:insert", "remove": "mode:remove"},
-    repeat=2
+    repeat=2,
+    text_size=0.3
 )
 
 qr_config = generator.generate()
@@ -47,8 +48,8 @@ def generate_qr_images_from_json(config):
         margin_left = int(params["margin_left"] * width_px)
         margin_right = int(params["margin_right"] * width_px)
 
-        text_pos = params.get("text", "under")
-        text_size_ratio = params.get("text_size", 0.15)
+        text = params.get("text", "under")
+        text_size = params.get("text_size", 0.15)
 
         for item in params["items"]:
             label = item["label"]
@@ -67,7 +68,7 @@ def generate_qr_images_from_json(config):
             available_height = height_px - margin_top - margin_bottom
 
             base_font = ImageFont.load_default()
-            text_scale = int(text_size_ratio * min(available_width, available_height))
+            text_scale = int(text_size * min(available_width, available_height))
             font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", text_scale)
 
             bbox = draw.textbbox((0, 0), label, font=font)
@@ -79,11 +80,11 @@ def generate_qr_images_from_json(config):
             qr_img = qr_img.resize((qr_side_px, qr_side_px), Image.Resampling.LANCZOS)
 
             qr_x = margin_left + (available_width - qr_side_px) // 2
-            qr_y = margin_top if text_pos == "under" else margin_top + text_h
+            qr_y = margin_top if text == "under" else margin_top + text_h
             canvas.paste(qr_img, (qr_x, qr_y))
 
             text_x = (width_px - text_w) // 2
-            if text_pos == "under":
+            if text == "under":
                 text_y = height_px - margin_bottom + (margin_bottom - text_h) // 2
             else:
                 text_y = (margin_top - text_h) // 2
